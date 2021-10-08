@@ -51,7 +51,7 @@ What is Docker?
 - other container runtimes: rkt, cri-o, podman, others...
 - services provided by Docker:
 	- running containers and managing their state
-	- managing images - image build (Dockerfile), remote repositories
+	- building images, managing remote repositories
 	- managing persistence for containers
 	- managing networking for containers
 
@@ -162,6 +162,10 @@ Container registries
 - REST API
 - private registries for private images with authentication
 
+# TODO
+- dockerhub with link, show the UI
+- istos.azurecr.io, show UI
+
 ---
 
 Persistent storage
@@ -202,11 +206,17 @@ docker run \
 
 Container security
 
-# TODO
-
 - running as root / rootless
 - privileged
 - image scanning
+
+# TODO
+- elaborate on rootless
+- explain importance of image scanning
+	- We have Jfrom X-ray
+	- needs to be integrated into build pipelines
+
+https://wiki.app.dmgmori.com/pages/viewpage.action?spaceKey=IPSTC&title=Docker+container+non-root+context
 
 ---
 
