@@ -2,30 +2,25 @@
 
 ---
 
-What we will talk about
+Why we need containers
 
-- history of containers, how we got here
-- backgroudn on containers (Linux internals)
-- Docker images, Dockerfile, persistent storage
-- common use cases - docker-compose, Docker desktop
-- security
-- useful commands
-
----
-
-History of Docker & containers
-
-# TODO
+- microservices era - complex application stacks
+- common dependencies, different versions on the same system
+- need for a well-defined, repeatable runtime environment
+- unit of application packaging
+- greatly simplifies application deployment
+- [history of containerization](https://blog.aquasec.com/a-brief-history-of-containers-from-1970s-chroot-to-docker-2016)
 
 ---
 
 Background - Linux concepts
 
 - a process is an executing instance of a program
-- namespaces: a Linux kernel concept - isolation for processes
-	- fixed number of namespace types: mount, network, uid and others
+- namespaces: a Linux kernel feature - isolation for processes
+	- namespace types: mount, network, uid and a few others
 	- at startup: a single namespace of each type, used by all processes
-- control groups: for setting resource limits (mainly CPU, RAM)
+- control groups (cgroups): another Linux feature
+	- setting resource limits (mainly CPU, RAM)
 
 ---
 
@@ -45,7 +40,6 @@ Isolation
 	- mount namespace: isolated file system
 	- network namespace: isolated networking
 - resource limits provided by control groups (cgroups)
-	- another Linux kernel feature
 	- cpu, memory limits
 
 ---
@@ -59,7 +53,7 @@ What is Docker?
 	- running containers and managing their state
 	- managing images - image build (Dockerfile), remote repositories
 	- managing persistence for containers
-	- networking for containers
+	- managing networking for containers
 
 ---
 
@@ -67,7 +61,7 @@ Docker architecture - Overview
 
 ![Docker architecture](images/docker-architecture.svg)
 
-Source: [Docker overview](docker-overview)
+Source: [Docker overview](https://docs.docker.com/get-started/overview/)
 
 ---
 
@@ -96,19 +90,19 @@ Union filesystems
 
 Union filesystem in Docker
 
-![Overlay filesystem](images/julia-evans-overlay.jpeg) <!-- .element height="60%" width="60%" -->
+![Overlay filesystem](images/julia-evans-overlay.jpeg) <!-- .element height="70%" width="70%" -->
 
 Credit: [Julia Evans](https://jvns.ca/blog/2019/11/18/how-containers-work--overlayfs/)
 
 ---
 
-Layers
+Docker image layers
 
 ![Mount types](images/layers.png)
 
 ---
 
-Overlay
+What it looks like
 
 ![Mount types](images/overlay.png)
 
@@ -131,7 +125,7 @@ Dockerfile
 
 Multi-stage builds
 
-```
+```Dockerfile
 FROM node:12.13.0-alpine as build
 WORKDIR /app
 COPY package*.json ./
@@ -150,10 +144,14 @@ COPY --from=build /app/build /usr/share/nginx/html
 
 OCI - Open Container Initiative
 
-# TODO
+- OCI runtime spec & OCI image spec
+- initiative for container runtime interchangeability
+- a "Docker image" is really an "OCI image" today
 
-- OCI runtime spec
-- OCI image spec
+```
+docker run example.com/org/app:v1.0.0
+rkt run example.com/org/app,version=v1.0.0
+```
 
 ---
 
@@ -189,7 +187,7 @@ Volumes
 
 Example run
 
-```
+```sh
 docker run \
   --rm \
   --name nginx \
@@ -206,8 +204,9 @@ Container security
 
 # TODO
 
-- rootless
+- running as root / rootless
 - privileged
+- image scanning
 
 ---
 
@@ -230,7 +229,7 @@ Docker desktop - Windows & Mac
 - requires either WSL2 or Hyper-V
 - Docker desktop includes
 	- Docker engine
-	- Docker clie
+	- Docker cli
 	- docker-compose
 
 ---
@@ -245,11 +244,8 @@ Useful commands
 
 Useful links
 
-- ["The container ecosystem"](container-ecosystem)
-- ["Docker behind the scenes"](docker-behind)
-- ["Docker internals overview"](docker-runc)
-
-[docker-overview]: https://docs.docker.com/get-started/overview/
-[docker-behind]: https://accenture.github.io/blog/2021/03/10/docker-behind-the-scenes.html
-[docker-runc]: https://accenture.github.io/blog/2021/03/18/docker-components-and-oci.html
-[container-ecosystem]: https://accenture.github.io/blog/2021/03/25/docker-and-the-container-ecosystem.html 
+- ["The container ecosystem"](https://accenture.github.io/blog/2021/03/25/docker-and-the-container-ecosystem.html)
+- ["Docker behind the scenes"](https://accenture.github.io/blog/2021/03/10/docker-behind-the-scenes.html)
+- ["Docker internals overview"](https://accenture.github.io/blog/2021/03/18/docker-components-and-oci.html)
+- ["Namespaces in Go series"](https://medium.com/@teddyking/namespaces-in-go-basics-e3f0fc1ff69a)
+- ["Deep dive into namespaces series"](http://ifeanyi.co/posts/linux-namespaces-part-1/)
