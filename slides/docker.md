@@ -27,7 +27,7 @@ Background on containers
 
 What is a Docker container?
 
-- a regular process that is namespaced separately from the others
+- a regular process that is managed by Docker and is namespaced separately from the others
 - "lightweight": no different from any other process in the system! just processes!
 
 ![Shared kernel](images/shared-kernel.png) <!-- .element height="40%" width="40%" -->
@@ -37,10 +37,10 @@ What is a Docker container?
 Containers provide isolation and resource limits
 
 - Docker creates a set of namespaces and control groups for the container
-- isolation provided by namespaces, for example:
+- isolation is provided by namespaces, for example:
 	- mount namespace: isolated file system
 	- network namespace: isolated networking
-- resource limits provided by control groups (cgroups)
+- resource limits are provided by control groups (cgroups)
 	- cpu, memory limits
 
 ---
@@ -78,13 +78,20 @@ Docker images
 
 Union filesystems
 
-- Docker images use this format, but it is independent of containers
+- Docker images use this format
 - main advantage: efficient storage
+	- images are composed of layers
 	- images can share sets of layers
 	- only deltas are recorder in new layers
-- only the top layer is writable during run-time
+- during run-time a writable top layer is mounted
 	- containers don't modify their images
 - the containerized app inside doesn't know, doesn't care!
+
+---
+
+What it looks like
+
+![Mount types](images/overlay.png)
 
 ---
 
@@ -93,12 +100,6 @@ Union filesystem in Docker
 ![Overlay filesystem](images/julia-evans-overlay.jpeg) <!-- .element height="70%" width="70%" -->
 
 Credit: [Julia Evans](https://jvns.ca/blog/2019/11/18/how-containers-work--overlayfs/)
-
----
-
-What it looks like
-
-![Mount types](images/overlay.png)
 
 ---
 
@@ -113,7 +114,7 @@ Dockerfile
 - a text file with instructions on how to build a Docker image
 - `docker build`
 	- needs a Dockerfile and a context
-- custom, declarative syntax
+- [declarative syntax with directives](https://docs.docker.com/engine/reference/builder/)
 - `FROM` directive: "inheritance"
 	- builds on top of an existing image
 
