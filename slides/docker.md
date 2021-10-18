@@ -262,7 +262,7 @@ Security best practices
 - [run containers as a non-root user](https://www.redhat.com/en/blog/understanding-root-inside-and-outside-container)
 	- needs a carefully built image
 - don't store any sensitive information in images
-- scan images!
+- scan images for vulnerabilities and secrets!
 	- discovering vulnerable dependencies
 	- we have Jfrom X-ray but needs to be integrated into pipelines
 
