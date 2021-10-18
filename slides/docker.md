@@ -7,13 +7,13 @@ Why we need containers
 - microservices era - complex application stacks
 - common dependencies, different versions on the same system
 - need for a well-defined, repeatable runtime environment
-- unit of application packaging
-- greatly simplifies application deployment
+- need for a unit of application packaging
+- containers greatly simplify application deployment by encapsulation
 - [history of containerization](https://blog.aquasec.com/a-brief-history-of-containers-from-1970s-chroot-to-docker-2016)
 
 ---
 
-Background - Linux concepts
+Background on containers - Linux concepts
 
 - a process is an executing instance of a program
 - namespaces: a Linux kernel feature - isolation for processes
@@ -80,11 +80,10 @@ Union filesystems
 
 - Docker images use this format
 - the containerized app doesn't know, doesn't care
-- like stacking layers of film on each other
 - efficient storage
-	- the bottom layers can be shared
+	- containers can share the layers
 	- only the deltas are recorder in new layers
-- only the top layer is writable, only for the duration of the container
+- only the top layer is writable
 
 ---
 
@@ -111,9 +110,11 @@ What it looks like
 Dockerfile
 
 - the Dockerfile a text file with instructions on how to build a Docker image
-- `docker build` - needs a Dockerfile and a context
+- `docker build`
+	- needs a Dockerfile and a context
 - custom, declarative syntax
-- `FROM` directive: build on top of an existing image
+- `FROM` directive: "inheritance"
+	- builds on top of an existing image
 
 ---
 
@@ -161,10 +162,14 @@ Container registries
 - like remote git repos but for images
 - REST API
 - private registries for private images with authentication
+	- `docker login`
 
-# TODO
-- dockerhub with link, show the UI
-- istos.azurecr.io, show UI
+---
+
+Container registries that we use
+
+- the official Docker image registry: [dockerhub](https://hub.docker.com/)
+- our internal Azure container registry (ACR): [istos.azurecr.io](https://portal.azure.com/)
 
 ---
 
@@ -189,7 +194,7 @@ Volumes
 
 ---
 
-Example run
+Example: running a container
 
 ```sh
 docker run \
@@ -204,11 +209,25 @@ docker run \
 
 ---
 
+docker-compose
+
+- for multi-container applications
+- everything configured in a single yaml file
+	- containers
+	- networks
+	- volumes
+- runs Docker commands in the background
+	- `docker-compose up`
+	- `docker-compose down`
+
+---
+
 Container security
 
 - running as root / rootless
 - privileged
-- image scanning
+- importance of image scanning
+	- vulnerable dependencies
 
 # TODO
 - elaborate on rootless
@@ -220,16 +239,10 @@ https://wiki.app.dmgmori.com/pages/viewpage.action?spaceKey=IPSTC&title=Docker+c
 
 ---
 
-docker-compose
+Security best practices
 
-- for multi-container applications
-- everything configured in a single yaml file
-	- containers
-	- networks
-	- volumes
-- runs Docker commands in the background
-	- `docker-compose up`
-	- `docker-compose down`
+- change the default root user to
+- don't store any sensitive information in images
 
 ---
 
