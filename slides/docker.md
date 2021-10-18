@@ -16,11 +16,11 @@ Why we need containers
 Background on containers
 
 - Docker containers are based on Linux concepts
-- processes: an executing instance of a program
-- namespaces: a Linux kernel feature - isolation for processes
+- process: an executing instance of a program
+- namespace: a Linux kernel feature - isolation for processes
 	- namespace types: mount, network, uid and a few others
 	- at startup: a single namespace of each type, used by all processes
-- control groups (cgroups): another Linux feature
+- control group (cgroup): another Linux feature
 	- setting resource limits (mainly CPU, RAM)
 
 ---
