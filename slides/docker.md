@@ -13,9 +13,10 @@ Why we need containers
 
 ---
 
-Background on containers - Linux concepts
+Background on containers
 
-- a process is an executing instance of a program
+- Docker containers are based on Linux concepts
+- processes: an executing instance of a program
 - namespaces: a Linux kernel feature - isolation for processes
 	- namespace types: mount, network, uid and a few others
 	- at startup: a single namespace of each type, used by all processes
@@ -27,16 +28,16 @@ Background on containers - Linux concepts
 What is a Docker container?
 
 - a regular process that is namespaced separately from the others
-- containers (they are simple processes!) share the same kernel
+- "lightweight": no different from any other process in the system! just processes!
 
 ![Shared kernel](images/shared-kernel.png) <!-- .element height="40%" width="40%" -->
 
 ---
 
-Isolation
+Containers provide isolation and resource limits
 
 - Docker creates a set of namespaces and control groups for the container
-- isolation provided by namespaces
+- isolation provided by namespaces, for example:
 	- mount namespace: isolated file system
 	- network namespace: isolated networking
 - resource limits provided by control groups (cgroups)
@@ -48,7 +49,7 @@ What is Docker?
 
 - containers != Docker
 - Docker is a "container runtime": it manages containers for you
-- other container runtimes: rkt, cri-o, podman, others...
+- other container runtimes: rkt, cri-o, podman, others
 - services provided by Docker:
 	- running containers and managing their state
 	- building images, managing remote repositories
@@ -72,18 +73,18 @@ Docker images
 	- fixed executable versions
 	- fixed library versions, dependencies
 - basis for a predictable, stable environment
-- image naming `<repository>:<tag>`, implicit push target
 
 ---
 
 Union filesystems
 
-- Docker images use this format
-- the containerized app doesn't know, doesn't care
-- efficient storage
-	- containers can share the layers
-	- only the deltas are recorder in new layers
-- only the top layer is writable
+- Docker images use this format, but it is independent of containers
+- main advantage: efficient storage
+	- images can share sets of layers
+	- only deltas are recorder in new layers
+- only the top layer is writable during run-time
+	- containers don't modify their images
+- the containerized app inside doesn't know, doesn't care!
 
 ---
 
@@ -95,21 +96,21 @@ Credit: [Julia Evans](https://jvns.ca/blog/2019/11/18/how-containers-work--overl
 
 ---
 
-Docker image layers
-
-![Mount types](images/layers.png)
-
----
-
 What it looks like
 
 ![Mount types](images/overlay.png)
 
 ---
 
+Shared layers
+
+![Mount types](images/layers.png)
+
+---
+
 Dockerfile
 
-- the Dockerfile a text file with instructions on how to build a Docker image
+- a text file with instructions on how to build a Docker image
 - `docker build`
 	- needs a Dockerfile and a context
 - custom, declarative syntax
@@ -145,8 +146,10 @@ COPY --from=build /app/build /usr/share/nginx/html
 
 OCI - Open Container Initiative
 
-- OCI runtime spec & OCI image spec
 - initiative for container runtime interchangeability
+- 2 specifications:
+	- runtime spec
+	- image spec
 - a "Docker image" is really an "OCI image" today
 
 ```
@@ -163,13 +166,14 @@ Container registries
 - REST API
 - private registries for private images with authentication
 	- `docker login`
+- image names imply the target repository: `<repository>:<tag>`
 
 ---
 
 Container registries that we use
 
 - the official Docker image registry: [dockerhub](https://hub.docker.com/)
-- our internal Azure container registry (ACR): [istos.azurecr.io](https://portal.azure.com/)
+- our internal Azure container registry (ACR): [istos.azurecr.io](https://portal.azure.com/#@dmgmori.onmicrosoft.com/resource/subscriptions/7feec180-3aa3-44f9-a1e0-790204d56882/resourceGroups/ne-dz-rg0001/providers/Microsoft.ContainerRegistry/registries/istos/overview)
 
 ---
 
@@ -187,10 +191,28 @@ Persistent storage
 Volumes
 
 - managed by Docker
-- data is stored on the host fs, mapped into the container
+- data is persisted on the host fs, mapped into the container
 - can be shared by multiple containers
 
 ![Mount types](images/var-lib-docker-volumes.jpg) <!-- .element height="35%" width="35%" -->
+
+---
+
+Docker container networking
+
+- containers run in a different network namespace
+	- isolated from the host
+- Docker creates the docker0 bridge interface on the host
+- connect to other network namespace via virtual ethernet (veth) pairs
+- container ports -> host ports need explicit mapping 
+
+---
+
+Docker container networking
+
+![Container networking](images/container-networking.png) <!-- .element height="60%" width="60%" -->
+
+Credit: [DZone](https://dzone.com/articles/step-by-step-guide-establishing-container-networki)
 
 ---
 
@@ -200,8 +222,8 @@ Example: running a container
 docker run \
   --rm \
   --name nginx \
-  -v /home/vagrant/work/tmp/docker-presentation/nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
-  -v /home/vagrant/work/tmp/docker-presentation:/var/www:ro \
+  -v /docker-presentation/nginx/nginx.conf:/etc/nginx/nginx.conf:ro \
+  -v /docker-presentation:/var/www:ro \
   -p 9999:80 \
   -d \
   nginx
@@ -224,25 +246,25 @@ docker-compose
 
 Container security
 
-- running as root / rootless
-- privileged
-- importance of image scanning
-	- vulnerable dependencies
-
-# TODO
-- elaborate on rootless
-- explain importance of image scanning
-	- We have Jfrom X-ray
-	- needs to be integrated into build pipelines
-
-https://wiki.app.dmgmori.com/pages/viewpage.action?spaceKey=IPSTC&title=Docker+container+non-root+context
+- [not secure by default](https://blog.gitguardian.com/how-to-improve-your-docker-containers-security-cheat-sheet/)!
+- the Docker daemon runs as root
+	- it can do anything when starting containers
+- [rootless alternatives](https://developers.redhat.com/blog/2020/09/25/rootless-containers-with-podman-the-basics#): podman, kaniko, img, buildah
+- the default user [inside Docker containers is root](https://amazicworld.com/get-the-evil-out-dont-run-containers-as-root/)
+	- problems with sensitive mounts
+	- [privilege escalations](https://book.hacktricks.xyz/linux-unix/privilege-escalation/docker-breakout/docker-breakout-privilege-escalation)
 
 ---
 
 Security best practices
 
-- change the default root user to
+- use trusted base images -> [Docker Official Images](https://hub.docker.com/search?q=&type=image&image_filter=official)
+- [run containers as a non-root user](https://www.redhat.com/en/blog/understanding-root-inside-and-outside-container)
+	- needs a carefully built image
 - don't store any sensitive information in images
+- scan images!
+	- discovering vulnerable dependencies
+	- we have Jfrom X-ray but needs to be integrated into pipelines
 
 ---
 
@@ -262,6 +284,7 @@ Useful commands
 - `docker exec -it CONTAINER COMMAND`
 - `docker logs -f CONTAINER`
 - `docker cp CONTAINER:SRC_PATH DEST_PATH`
+- `docker inspect CONTAINER`
 
 ---
 
