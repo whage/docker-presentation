@@ -8,7 +8,8 @@ Why we need containers
 - common dependencies, different versions on the same system
 - need for a well-defined, repeatable runtime environment
 - need for a unit of application packaging
-- containers greatly simplify application deployment by encapsulation
+- containers greatly simplify application deployment
+	- encapsulate everything: runtime, app, dependencies
 - [history of containerization](https://blog.aquasec.com/a-brief-history-of-containers-from-1970s-chroot-to-docker-2016)
 
 ---
@@ -79,7 +80,7 @@ Docker images
 Union filesystems
 
 - Docker images use this format
-- main advantage: efficient storage
+- a storage optimization mechanism for images
 	- images are composed of layers
 	- images can share sets of layers
 	- only deltas are recorder in new layers
@@ -180,10 +181,9 @@ Container registries that we use
 
 Persistent storage
 
-- problem: the writable layer is lost when containers are killed
-- solution for persistence: separate storage mechanisms: volumes
-- independent of container lifecycle
-- other options: bind mount, tmpfs
+- containers are designed to be ephemeral, the writable layer is lost when containers are killed
+- we need to exlpicitly add storage
+- options: volumes, bind mount, tmpfs
 
 ![Mount types](images/mount-types.png) <!-- .element height="35%" width="35%" -->
 
@@ -191,7 +191,7 @@ Persistent storage
 
 Volumes
 
-- managed by Docker
+- managed by Docker, decoupled from the host directory sturcture
 - data is persisted on the host fs, mapped into the container
 - can be shared by multiple containers
 
@@ -229,12 +229,13 @@ docker run \
   -d \
   nginx
 ```
+(this presentation is running inside docker)
 
 ---
 
 docker-compose
 
-- for multi-container applications
+- tool for multi-container applications
 - everything configured in a single yaml file
 	- containers
 	- networks
